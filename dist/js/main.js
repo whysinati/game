@@ -27,26 +27,97 @@ var game = (function(){
     speed: 5
   }
 
+  //1. Initialize an Object of spawns
+  var spawns = {}
+
+  //2. Initialize a variable for launching spawns.
+  var spawner = null;
+
   //2. Create a method for launching spawns
   // this iteration will launch a single spawn
   function launchSpawns(){
-    ctx.fillStyle=spawn.fill;
+    // ctx.fillStyle=spawn.fill;
 
-    ctx.clearRect(
-      spawn.x-1,
-      spawn.y-spawn.speed,
-      spawn.w+2,
-      spawn.h+2
-    );
+    // ctx.clearRect(
+    //   spawn.x-1,
+    //   spawn.y-spawn.speed,
+    //   spawn.w+2,
+    //   spawn.h+2
+    // );
 
-    ctx.fillRect(
-      spawn.x,
-      spawn.y = (spawn.y + spawn.speed),
-      spawn.w,
-      spawn.h
-    );
+    // ctx.fillRect(
+    //   spawn.x,
+    //   spawn.y = (spawn.y + spawn.speed),
+    //   spawn.w,
+    //   spawn.h
+    // );
+    //3. Create a new enemy spawn every 400 ms
+    spawner = setInterval(()=>{
+        //4. Use psuedo-random strings to name the new spawns
+        var text = "";
+        var possible = "abcdefghijklmnopqrstuvwxyz";
+    
+        for (var i = 0; i < 10; i++){
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+    
+        //5. Add the new spawn to the Object of Spawns
+        spawns[text] = {
+            x:Math.floor(Math.random()*this.canvas.width),
+            y:spawn.y,
+            h:spawn.h,
+            w:spawn.w,
+            fill:spawn.fill,
+            speed:spawn.speed,
+        }
+    
+        },400);
   }
 
+  //6. Move all spawns
+  function moveSpawns(){
+
+    //7. Loop through the Object of spawns
+    //and move each one individually.
+    //This will look a lot like movePlayer()
+    if(Object.keys(spawns).length>0){
+      for(let spawn in spawns){
+
+        //8. Only move the spawn, if the spawn has not 
+        //moved off of the screen.
+        if(spawns[spawn].y<=canvas.height){
+
+          ctx.fillStyle = spawns[spawn].fill;
+
+          ctx.save();
+
+          ctx.clearRect(
+            spawns[spawn].x-1,
+            spawns[spawn].y-spawns[spawn].speed,
+            spawns[spawn].w+2,
+            spawns[spawn].h+2
+          );
+
+          ctx.fillRect(
+            spawns[spawn].x,
+            spawns[spawn].y = (spawns[spawn].y+spawns[spawn].speed),
+            spawns[spawn].w,
+            spawns[spawn].h
+          );
+
+          ctx.restore();
+          
+
+        }else{
+          //9. Delete the spawn from the Object of spawns if 
+          // that spawn has moved off of the screen.
+          delete spawns[spawn];
+        }
+      }
+    }
+
+  }
+  
     return {
 
         //2. Draw the player to the canvas
@@ -125,7 +196,9 @@ var game = (function(){
         animate: function(){
             this.player();
             //3. Animate the spawns
-            launchSpawns();
+            // launchSpawns();
+            //10. Add moveSpawns to the animation frame.
+            moveSpawns();
             window.requestAnimationFrame(this.animate.bind(this));
         },
 
@@ -133,6 +206,7 @@ var game = (function(){
         canvas.height = 600;
         canvas.width = 800;
 
+        launchSpawns();
         // this.player();
         this.animate();
       }
