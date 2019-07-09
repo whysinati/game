@@ -33,6 +33,13 @@ var game = (function(){
   //2. Initialize a variable for launching spawns.
   var spawner = null;
 
+  //1. Add the animation frames to a variable
+  //the we can kill later
+  var animation  = null;
+
+  //2. Track the state of game over
+  var gameOver = false;
+
   //2. Create a method for launching spawns
   // this iteration will launch a single spawn
   function launchSpawns(){
@@ -68,7 +75,8 @@ var game = (function(){
             h:spawn.h,
             w:spawn.w,
             fill:spawn.fill,
-            speed:spawn.speed,
+            // speed:spawn.speed,
+            speed:Math.floor(Math.random() * 7),
         }
     
         },400);
@@ -120,6 +128,59 @@ var game = (function(){
   
     return {
 
+        moveSpawns: function(){
+
+            if(Object.keys(spawns).length>0){
+              for(let spawn in spawns){
+      
+                if(spawns[spawn].y<=canvas.height){
+      
+      
+                  ctx.fillStyle = spawns[spawn].fill;
+      
+      
+                  ctx.save();
+      
+                  ctx.clearRect(
+                    spawns[spawn].x-1,
+                    spawns[spawn].y-spawns[spawn].speed,
+                    spawns[spawn].w+2,
+                    spawns[spawn].h+2
+                  );
+      
+                  ctx.fillRect(
+                    spawns[spawn].x,
+                    spawns[spawn].y = (spawns[spawn].y+spawns[spawn].speed),
+                    spawns[spawn].w,
+                    spawns[spawn].h
+                  );
+      
+                  ctx.restore();
+      
+                  //3. When each spawn move detect if that spawn shares common pixels
+                  //with the player. If so this is a collision.
+                  //@see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+                  if (
+                    player.x < spawns[spawn].x + spawns[spawn].w &&
+                    spawns[spawn].x > player.x && spawns[spawn].x < (player.x + player.w) &&
+                    player.y < spawns[spawn].y + spawns[spawn].h &&
+                    player.y + player.h > spawns[spawn].y
+                  ){
+                    //4. If there is a collision set gameOver to true
+                    gameOver = true;
+                    //5. ...kill the animation frames
+                    cancelAnimationFrame(animation);
+                    //6. ...kill the spawner
+                    clearInterval(spawner);
+                  }
+      
+                }else{
+                  delete spawns[spawn];
+                }
+              }
+            }
+      
+          },
         //2. Draw the player to the canvas
         player: function(){
             ctx.fillStyle=player.fill;
