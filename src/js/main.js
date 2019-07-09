@@ -11,7 +11,10 @@ var game = (function(){
         w: 25,
         fill: '#fff',
         //1. Add a default direction for player movement.
-        dir: 'right'
+        dir: 'right',
+        //1. Add a speed property to the player this is the number of pixels 
+        //the player will move each frame
+        speed: 5
     }
 
     return {
@@ -20,19 +23,26 @@ var game = (function(){
         player: function(){
             ctx.fillStyle=player.fill;
 
+            if(player.dir === 'right'){
+
+            //2. Change x-1 to player.x-player.speed
+
             //1. Define how many pixels the player
             // should move each frame (i.e. speed)
             ctx.clearRect(
-                player.x-1,
+                // player.x-1,
+                player.x-player.speed,
                 player.y-1,
                 player.w+2,
                 player.h+2
             );
 
             //2. Add x pixels to move the player to the right
-            if(player.dir === 'right'){
+            // if(player.dir === 'right'){
+                //3. Change player.x++ to player.x = (player.x + player.speed)
                 ctx.fillRect(
-                    player.x++, 
+                    // player.x++,
+                    player.x = (player.x + player.speed), 
                     player.y, 
                     player.w, 
                     player.h
@@ -44,10 +54,20 @@ var game = (function(){
             }
     
             }else{
+
+            //4. Change player.x+1 to player.x+player.speed
+            ctx.clearRect(
+                player.x+player.speed,
+                player.y-1,
+                player.w+2,
+                player.h+2
+            );
     
                 //4. Subtract x pixels to move the player to the left
+                //5. Change player.x-- to player.x = (player.x - player.speed),
                 ctx.fillRect(
-                    player.x--,
+                    // player.x--,
+                    player.x = (player.x - player.speed),
                     player.y,
                     player.w,
                     player.h
