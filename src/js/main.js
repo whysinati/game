@@ -17,6 +17,36 @@ var game = (function(){
         speed: 5
     }
 
+  //1. Define an enemy spawn
+  var spawn = {
+    x: 50,
+    y: 0,
+    h: 10,
+    w: 10,
+    fill: '#ff0',
+    speed: 5
+  }
+
+  //2. Create a method for launching spawns
+  // this iteration will launch a single spawn
+  function launchSpawns(){
+    ctx.fillStyle=spawn.fill;
+
+    ctx.clearRect(
+      spawn.x-1,
+      spawn.y-spawn.speed,
+      spawn.w+2,
+      spawn.h+2
+    );
+
+    ctx.fillRect(
+      spawn.x,
+      spawn.y = (spawn.y + spawn.speed),
+      spawn.w,
+      spawn.h
+    );
+  }
+
     return {
 
         //2. Draw the player to the canvas
@@ -94,6 +124,8 @@ var game = (function(){
         //3. Redraw the player every time a frame is executed
         animate: function(){
             this.player();
+            //3. Animate the spawns
+            launchSpawns();
             window.requestAnimationFrame(this.animate.bind(this));
         },
 
