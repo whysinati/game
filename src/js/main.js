@@ -1,23 +1,27 @@
 var game = (function(){
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-  
-    //1. Create the player object
-    // Define all argument that will be used by fillRect()
-    var player = {
-        x:0,
-        y:475,
-        h: 25,
-        w: 25,
-        fill: '#fff',
-        //1. Add a default direction for player movement.
-        dir: 'right',
-        //1. Add a speed property to the player this is the number of pixels 
-        //the player will move each frame
-        speed: 5
-    }
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
 
-  //1. Define an enemy spawn
+  var player = {
+      x:0,
+      y:475,
+      h: 25,
+      w: 25,
+      fill: '#fff',
+      dir: 'right',
+      speed: 5
+  }
+
+  var playerTwo = {
+    x:775,
+    y:475,
+    h: 25,
+    w: 25,
+    fill: 'pink',
+    dir: 'left',
+    speed: 5
+}
+
   var spawn = {
     x: 50,
     y: 0,
@@ -27,41 +31,23 @@ var game = (function(){
     speed: 5
   }
 
-  //1. Initialize an Object of spawns
+  var head = {
+    r: 10
+  }
+
   var spawns = {}
 
-  //2. Initialize a variable for launching spawns.
   var spawner = null;
 
-  //1. Add the animation frames to a variable
-  //the we can kill later
   var animation  = null;
 
-  //2. Track the state of game over
   var gameOver = false;
 
-  //1. Create a variable to hold the score
-  var score = 0;
+  var scoreP1 = 0;
 
-  //2. Create a method for launching spawns
-  // this iteration will launch a single spawn
+  var scoreP2 = 0;
+
   function launchSpawns(){
-    // ctx.fillStyle=spawn.fill;
-
-    // ctx.clearRect(
-    //   spawn.x-1,
-    //   spawn.y-spawn.speed,
-    //   spawn.w+2,
-    //   spawn.h+2
-    // );
-
-    // ctx.fillRect(
-    //   spawn.x,
-    //   spawn.y = (spawn.y + spawn.speed),
-    //   spawn.w,
-    //   spawn.h
-    // );
-    //3. Create a new enemy spawn every 400 ms
     spawner = setInterval(()=>{
         //4. Use psuedo-random strings to name the new spawns
         var text = "";
@@ -71,7 +57,6 @@ var game = (function(){
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
     
-        //5. Add the new spawn to the Object of Spawns
         spawns[text] = {
             x:Math.floor(Math.random()*this.canvas.width),
             y:spawn.y,
@@ -86,120 +71,123 @@ var game = (function(){
         },400);
   }
 
-  //6. Move all spawns
-//   function moveSpawns(){
+  function moveSpawns(){
 
-    //7. Loop through the Object of spawns
-    //and move each one individually.
-    //This will look a lot like movePlayer()
-    // if(Object.keys(spawns).length>0){
-    //   for(let spawn in spawns){
+    if(Object.keys(spawns).length>0){
+      for(let spawn in spawns){
 
-        //8. Only move the spawn, if the spawn has not 
-        //moved off of the screen.
-        // if(spawns[spawn].y<=canvas.height){
+        if(spawns[spawn].y<=canvas.height){
 
-        //   ctx.fillStyle = spawns[spawn].fill;
+          ctx.fillStyle = spawns[spawn].fill;
 
-        //   ctx.save();
+          ctx.save();
 
-        //   ctx.clearRect(
-        //     spawns[spawn].x-1,
-        //     spawns[spawn].y-spawns[spawn].speed,
-        //     spawns[spawn].w+2,
-        //     spawns[spawn].h+2
-        //   );
+          ctx.clearRect(
+            spawns[spawn].x-1,
+            spawns[spawn].y-spawns[spawn].speed,
+            spawns[spawn].w+2,
+            spawns[spawn].h+2
+          );
 
-        //   ctx.fillRect(
-        //     spawns[spawn].x,
-        //     spawns[spawn].y = (spawns[spawn].y+spawns[spawn].speed),
-        //     spawns[spawn].w,
-        //     spawns[spawn].h
-        //   );
+          ctx.fillRect(
+            spawns[spawn].x,
+            spawns[spawn].y = (spawns[spawn].y+spawns[spawn].speed),
+            spawns[spawn].w,
+            spawns[spawn].h
+          );
 
-        //   ctx.restore();
+          ctx.restore();
           
 
-        // }else{
-          //9. Delete the spawn from the Object of spawns if 
-          // that spawn has moved off of the screen.
-//           delete spawns[spawn];
-//         }
-//       }
-//     }
+          if (
+            player.x < spawns[spawn].x + spawns[spawn].w &&
+            spawns[spawn].x > player.x && spawns[spawn].x < (player.x + player.w) &&
+            player.y < spawns[spawn].y + spawns[spawn].h &&
+            player.y + player.h > spawns[spawn].y
+          ){
+            gameOver = true;
+            cancelAnimationFrame(animation);
+            clearInterval(spawner);
+          }
 
-//   }
+        }else{
+          scoreP1 = scoreP1 + 10;
+          document.getElementById('scoreP1').innerHTML = 'Player 1: ' + scoreP1;
+          delete spawns[spawn];
+        }
+      }
+    }
+
+  }
   
-    return {
 
-        moveSpawns: function(){
 
-            if(Object.keys(spawns).length>0){
-              for(let spawn in spawns){
-      
-                if(spawns[spawn].y<=canvas.height){
-      
-      
-                  ctx.fillStyle = spawns[spawn].fill;
-      
-      
-                  ctx.save();
-      
-                  ctx.clearRect(
-                    spawns[spawn].x-1,
-                    spawns[spawn].y-spawns[spawn].speed,
-                    spawns[spawn].w+2,
-                    spawns[spawn].h+2
-                  );
-      
-                  ctx.fillRect(
-                    spawns[spawn].x,
-                    spawns[spawn].y = (spawns[spawn].y+spawns[spawn].speed),
-                    spawns[spawn].w,
-                    spawns[spawn].h
-                  );
-      
-                  ctx.restore();
-      
-                  //3. When each spawn move detect if that spawn shares common pixels
-                  //with the player. If so this is a collision.
-                  //@see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-                  if (
-                    player.x < spawns[spawn].x + spawns[spawn].w &&
-                    spawns[spawn].x > player.x && spawns[spawn].x < (player.x + player.w) &&
-                    player.y < spawns[spawn].y + spawns[spawn].h &&
-                    player.y + player.h > spawns[spawn].y
-                  ){
-                    //4. If there is a collision set gameOver to true
-                    gameOver = true;
-                    //5. ...kill the animation frames
-                    cancelAnimationFrame(animation);
-                    //6. ...kill the spawner
-                    clearInterval(spawner);
-                  }
-      
-                }else{
-                    //2. Increment the score when any time
-                    //an enemy sprite move off screen
-                    score = score + 10;
-                    //3. Write the score to a separate div
-                    document.getElementById('score').innerHTML = score;
-                    delete spawns[spawn];
+        function movePlayerTwo(){
+            ctx.fillStyle=playerTwo.fill;
+
+            if(playerTwo.dir === 'right'){
+
+                ctx.beginPath();
+
+                ctx.clearRect(
+                    // player.x-1,
+                    playerTwo.x-playerTwo.speed,
+                    playerTwo.y-1,
+                    playerTwo.w+2,
+                    playerTwo.h+2
+                );
+
+                ctx.fillRect(
+                    // player.x++,
+                    playerTwo.x = (playerTwo.x + playerTwo.speed), 
+                    playerTwo.y, 
+                    playerTwo.w, 
+                    playerTwo.h
+                    );
+
+                // ctx.beginPath();
+                ctx.arc(75, 75, 50, 0, Math.PI * 2, true); // Outer circle
+                // ctx.moveTo(110, 75);
+                // ctx.arc(75, 75, 35, 0, Math.PI, false);  // Mouth (clockwise)
+                // ctx.moveTo(65, 65);
+                // ctx.arc(60, 65, 5, 0, Math.PI * 2, true);  // Left eye
+                // ctx.moveTo(95, 65);
+                // ctx.arc(90, 65, 5, 0, Math.PI * 2, true);  // Right eye
+                // ctx.stroke();
+                ctx.closePath();
+
+                if((playerTwo.x + playerTwo.w) >= canvas.width){
+                    playerTwo.dir = 'left';
                 }
-              }
+    
+            }else{
+
+            ctx.clearRect(
+                playerTwo.x+playerTwo.speed,
+                playerTwo.y-1,
+                playerTwo.w+2,
+                playerTwo.h+2
+            );
+    
+            ctx.fillRect(
+                // player.x--,
+                playerTwo.x = (playerTwo.x - playerTwo.speed),
+                playerTwo.y,
+                playerTwo.w,
+                playerTwo.h
+            );
+        
+            if(playerTwo.x <= 0){
+                playerTwo.dir = 'right';
             }
-      
-          },
-        //2. Draw the player to the canvas
-        player: function(){
-            ctx.fillStyle=player.fill;
+        }
+      }
 
-            if(player.dir === 'right'){
+      function movePlayer(){
+        ctx.fillStyle=player.fill;
 
-            //2. Change x-1 to player.x-player.speed
+        if(player.dir === 'right'){
 
-            //1. Define how many pixels the player
-            // should move each frame (i.e. speed)
             ctx.clearRect(
                 // player.x-1,
                 player.x-player.speed,
@@ -208,87 +196,116 @@ var game = (function(){
                 player.h+2
             );
 
-            //2. Add x pixels to move the player to the right
-            // if(player.dir === 'right'){
-                //3. Change player.x++ to player.x = (player.x + player.speed)
-                ctx.fillRect(
-                    // player.x++,
-                    player.x = (player.x + player.speed), 
-                    player.y, 
-                    player.w, 
-                    player.h
-                    );
-            //3. Change the player direction when the player touches the edge 
-            //of the canvas.
+            ctx.fillRect(
+                // player.x++,
+                player.x = (player.x + player.speed), 
+                player.y, 
+                player.w, 
+                player.h
+                );
+
             if((player.x + player.w) >= canvas.width){
                 player.dir = 'left';
             }
-    
-            }else{
 
-            //4. Change player.x+1 to player.x+player.speed
-            ctx.clearRect(
-                player.x+player.speed,
-                player.y-1,
-                player.w+2,
-                player.h+2
-            );
-    
-                //4. Subtract x pixels to move the player to the left
-                //5. Change player.x-- to player.x = (player.x - player.speed),
-                ctx.fillRect(
-                    // player.x--,
-                    player.x = (player.x - player.speed),
-                    player.y,
-                    player.w,
-                    player.h
-                );
-        
-                //5. Change the player direction when the player touches the edge 
-                //of the canvas.
-                if(player.x <= 0){
-                    player.dir = 'right';
-                }
-            }
-      },
+        }else{
 
-    //1. Create a setter for changing the current direction of the user.
-    changeDirection: function(){
-        if(player.dir === 'left'){
-          player.dir = 'right';
-        }else if(player.dir === 'right'){
-          player.dir = 'left';
+        ctx.clearRect(
+            player.x+player.speed,
+            player.y-1,
+            player.w+2,
+            player.h+2
+        );
+
+        ctx.fillRect(
+            // player.x--,
+            player.x = (player.x - player.speed),
+            player.y,
+            player.w,
+            player.h
+        );
+    
+        if(player.x <= 0){
+            player.dir = 'right';
         }
-      },
+    }
+  }
 
-        //2. Create an animation frame
-        //3. Redraw the player every time a frame is executed
-        animate: function(){
-            this.player();
-            //3. Animate the spawns
-            // launchSpawns();
-            //10. Add moveSpawns to the animation frame.
-            this.moveSpawns();
-            if(gameOver===false){
-                animation = window.requestAnimationFrame(this.animate.bind(this));
-            }
-        },
+      function animate(){
+
+        movePlayer();
+        movePlayerTwo();
+        moveSpawns();
+        if(gameOver===false){
+            animation = window.requestAnimationFrame(animate.bind(animation));
+        }
+    }
+
+    return {
+
+      
+    changeDirection: function(){
+
+      switch (event.key) {
+        case "ArrowLeft":
+            // Left pressed
+            playerTwo.dir = 'left';
+            break;
+        case "ArrowRight":
+            // Right pressed
+            playerTwo.dir = 'right';
+            break;
+        case "ArrowUp":
+            // Up pressed
+            break;
+        case "ArrowDown":
+            // Down pressed
+            break;
+
+        case "a":
+            // d (Left) pressed
+            player.dir = 'left';
+            break;
+          case "d":
+              // d (Right) pressed
+              player.dir = 'right';
+              break;
+          case "w":
+              // w (Up) pressed
+              break;
+          case "s":
+              // s (Down) pressed
+              break;
+    }
+
+        // if(player.dir === 'left'){
+        //   player.dir = 'right';
+        // }else if(player.dir === 'right'){
+        //   player.dir = 'left';
+        // }
+      },
 
       init: function(){
         canvas.height = 600;
         canvas.width = 800;
 
+        document.getElementById('scoreP1').innerHTML = 'Player 1: ' + scoreP1;
+        document.getElementById('scoreP2').innerHTML = 'Player 2: ' + scoreP2;
+
         launchSpawns();
-        // this.player();
-        this.animate();
+        animate();
       }
     }
 })();
 
 game.init();
+//any key listener
+// window.addEventListener('keyup', function(){
+//     game.changeDirection();
+//   });
 
-//2. Add a listener to allow the  user to change the direction
-//of the player sprite
-window.addEventListener('keyup', function(){
-    game.changeDirection();
-  });
+window.addEventListener('keydown', function(event) {
+  const key = event.key; // "ArrowRight", "ArrowLeft", "ArrowUp", or "ArrowDown"
+  game.changeDirection();
+  console.log(event.key);
+});
