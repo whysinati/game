@@ -1,1 +1,1 @@
-canvas{background:#000}#scoreP1{position:absolute;top:20px;left:20px;z-index:100;font-weight:700;font-size:20px;color:#fff}#scoreP2{position:absolute;top:40px;left:20px;z-index:100;font-weight:700;font-size:20px;color:#fff}
+canvas{background:#000}#scoreP1{position:absolute;top:20px;left:20px;z-index:100;font-weight:700;font-size:20px;color:#fff}#scoreP2{position:absolute;top:40px;left:20px;z-index:100;font-weight:700;font-size:20px;color:#fff}#gameOverMsg{position:fixed;top:300px;left:400px;font-weight:700;font-size:40px;color:red;transform:translate(-50%,-50%)}

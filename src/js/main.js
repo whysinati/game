@@ -41,6 +41,8 @@ var game = (function(){
 
   var animation  = null;
 
+  var gameOverP1 = false;
+  var gameOverP2 = false;
   var gameOver = false;
 
   var scoreP1 = 0;
@@ -98,21 +100,54 @@ var game = (function(){
 
           ctx.restore();
           
-
           if (
             player.x < spawns[spawn].x + spawns[spawn].w &&
             spawns[spawn].x > player.x && spawns[spawn].x < (player.x + player.w) &&
             player.y < spawns[spawn].y + spawns[spawn].h &&
             player.y + player.h > spawns[spawn].y
           ){
-            gameOver = true;
+            gameOverP1 = true;
+            // console.log('p1 over');
+            document.getElementById("gameOverMsg").innerHTML = 'Player 1, GAME OVER!';
+            setTimeout(function(){
+              document.getElementById("gameOverMsg").innerHTML = '';
+            }, 1000);
+          };
+
+          if (
+            playerTwo.x < spawns[spawn].x + spawns[spawn].w &&
+            spawns[spawn].x > playerTwo.x && spawns[spawn].x < (playerTwo.x + playerTwo.w) &&
+            playerTwo.y < spawns[spawn].y + spawns[spawn].h &&
+            playerTwo.y + playerTwo.h > spawns[spawn].y
+          ){
+            gameOverP2 = true;
+            // console.log('p2 over');
+            document.getElementById("gameOverMsg").innerHTML = 'Player 2, GAME OVER!';
+            setTimeout(function(){
+              document.getElementById("gameOverMsg").innerHTML = '';
+            }, 1000);
+          };
+
+          if (gameOverP1 === true && gameOverP2 === true){
+            // console.log('stop all');
+            document.getElementById("gameOverMsg").innerHTML = 'GAME OVER!';
+
             cancelAnimationFrame(animation);
             clearInterval(spawner);
-          }
+          };
 
         }else{
-          scoreP1 = scoreP1 + 10;
+
+          if(gameOverP1===false){
+            scoreP1 = scoreP1 + 10;
+          };
+          if(gameOverP2===false){
+            scoreP2 = scoreP2 + 10;
+          };
           document.getElementById('scoreP1').innerHTML = 'Player 1: ' + scoreP1;
+          document.getElementById('scoreP2').innerHTML = 'Player 2: ' + scoreP2;
+
+
           delete spawns[spawn];
         }
       }
@@ -232,9 +267,25 @@ var game = (function(){
   }
 
       function animate(){
+        if(gameOverP1===false){
+          movePlayer();
+        }
+        // else{
+          
+          // setTimeout(function(){
+          //   document.getElementById("gameOverMsg").innerHTML = 'Game Over, Player 1!';
+          // }, 5000);
 
-        movePlayer();
-        movePlayerTwo();
+          // document.getElementById("gameOverMsg").innerHTML = 'Game Over, Player 1';
+          
+        // };
+
+        if(gameOverP2===false){
+          movePlayerTwo();
+        };
+
+        
+        
         moveSpawns();
         if(gameOver===false){
             animation = window.requestAnimationFrame(animate.bind(animation));
@@ -307,5 +358,5 @@ game.init();
 window.addEventListener('keydown', function(event) {
   const key = event.key; // "ArrowRight", "ArrowLeft", "ArrowUp", or "ArrowDown"
   game.changeDirection();
-  console.log(event.key);
+  // console.log(event.key);
 });
