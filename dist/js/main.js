@@ -58,7 +58,7 @@ var game = (function(){
         for (var i = 0; i < 10; i++){
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
-    
+
         spawns[text] = {
             x:Math.floor(Math.random()*this.canvas.width),
             y:spawn.y,
@@ -104,7 +104,7 @@ var game = (function(){
             player.x < spawns[spawn].x + spawns[spawn].w &&
             spawns[spawn].x > player.x && spawns[spawn].x < (player.x + player.w) &&
             player.y < spawns[spawn].y + spawns[spawn].h &&
-            player.y + player.h > spawns[spawn].y
+            player.y + player.h > spawns[spawn].y && gameOverP1 == false
           ){
             gameOverP1 = true;
             // console.log('p1 over');
@@ -118,7 +118,7 @@ var game = (function(){
             playerTwo.x < spawns[spawn].x + spawns[spawn].w &&
             spawns[spawn].x > playerTwo.x && spawns[spawn].x < (playerTwo.x + playerTwo.w) &&
             playerTwo.y < spawns[spawn].y + spawns[spawn].h &&
-            playerTwo.y + playerTwo.h > spawns[spawn].y
+            playerTwo.y + playerTwo.h > spawns[spawn].y && gameOverP2 == false
           ){
             gameOverP2 = true;
             // console.log('p2 over');
